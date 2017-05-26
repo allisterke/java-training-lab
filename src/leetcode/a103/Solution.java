@@ -20,8 +20,8 @@ public class Solution {
         }
         return list;
     }
-    
-    public List<List<Integer>> levelOrder(TreeNode root) {
+
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
         boolean reverse = false;
         List<List<Integer>> result = new ArrayList<>();
         if(root != null) {
