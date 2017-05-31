@@ -55,7 +55,7 @@ public class Solution {
         }
         set.remove(begin);
         Set<ArrayWrapper> currentLevel = new HashSet<>(Arrays.asList(begin));
-        for(int d = 2; !currentLevel.isEmpty(); ) {
+        for(int d = 2; !currentLevel.isEmpty(); ++ d) {
             Set<ArrayWrapper> nextLevel = new HashSet<>();
             for (ArrayWrapper aw : currentLevel) {
                 ArrayWrapper w = new ArrayWrapper(aw);
