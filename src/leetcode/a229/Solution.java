@@ -58,7 +58,7 @@ public class Solution {
         return k;
     }
 
-    List<Integer> majorityElement(int[] nums) {
+    List<Integer> majorityElement0(int[] nums) {
         List<Integer> majority = new ArrayList<>();
         for(int i = 1; i <= 2; ++ i) {
             int pos = (nums.length / 3 + 1) * i - 1;
@@ -70,6 +70,55 @@ public class Solution {
                     }
                 }
             }
+        }
+        return majority;
+    }
+
+    List<Integer> majorityElement(int[] nums) {
+        int a = 0, b = 0;
+        int ca = 0, cb = 0;
+        for(int n : nums) {
+            if(ca == 0 && cb == 0) {
+                a = n;
+                ++ ca;
+            }
+            else if(cb == 0) {
+                if(a == n) {
+                    ++ ca;
+                }
+                else {
+                    b = n;
+                    ++ cb;
+                }
+            }
+            else if(ca == 0) {
+                if(b == n) {
+                    ++ cb;
+                }
+                else {
+                    a = n;
+                    ++ ca;
+                }
+            }
+            else {
+                if(a == n) {
+                    ++ ca;
+                }
+                else if(b == n) {
+                    ++ cb;
+                }
+                else {
+                    -- ca;
+                    -- cb;
+                }
+            }
+        }
+        List<Integer> majority = new ArrayList<>();
+        if(ca > 0 && count(nums, a) > nums.length/3) {
+            majority.add(a);
+        }
+        if(cb > 0 && count(nums, b) > nums.length/3) {
+            majority.add(b);
         }
         return majority;
     }
