@@ -18,7 +18,7 @@ public class Solution {
             previous[i] = i;
             count[i] = 0;
             for(int j = 0; j < i; ++ j) {
-                if(count[j] > count[i]) {
+                if(nums[i] % nums[j] == 0 && count[j] > count[i]) {
                     count[i] = count[j];
                     previous[i] = j;
                 }
