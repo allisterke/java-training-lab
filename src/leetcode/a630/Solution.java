@@ -81,7 +81,7 @@ public class Solution {
     }
 
     int g = 0;
-    public int scheduleCourse(int[][] courses) {
+    public int scheduleCourse1(int[][] courses) {
         Arrays.sort(courses, (c1, c2) -> Integer.compare(c1[1], c2[1]));
         this.courses = courses;
         this.g = 0;
@@ -175,9 +175,177 @@ public class Solution {
         return cache.get(key);
     }
 
+    static class Task {
+        int duration, end, start;
+        public Task(int duration, int end) {
+            this.duration = duration;
+            this.end = end;
+            this.start = end - duration;
+        }
+    }
+
+    public int scheduleCourse2(int[][] courses) {
+        Arrays.sort(courses, (c1, c2) -> Integer.compare(c1[0], c2[0]));
+        int count = 0;
+        for(int i = 0; i < courses.length; ++ i) {
+            if(courses[i][1] >= courses[i][0]) {
+                ++ count;
+                int end = courses[i][1] - courses[i][0];
+                for(int j = i+1; j < courses.length; ++ j) {
+                    if(courses[j][1] >= courses[i][1]) {
+                        courses[j][1] -= courses[i][0];
+                    }
+                    else if(courses[j][1] >= end) {
+                        courses[j][1] = end;
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
+    public int scheduleCourse3(int[][] courses) {
+        Arrays.sort(courses, (c1, c2) -> Integer.compare(c1[0], c2[0]));
+        int schedule = 0;
+        boolean[] used = new boolean[10001];
+        for (int[] course : courses) {
+            int d = course[0];
+            int e = course[1];
+            int count = 0;
+            for(int i = e; i > 0 && count < d; -- i) {
+                if(!used[i]) {
+                    ++ count;
+                }
+            }
+            if(count != d) {
+                continue;
+            }
+            count = 0;
+            for(int i = e; i > 0 && count < d; -- i) {
+                if(!used[i]) {
+                    ++ count;
+                    used[i] = true;
+                }
+            }
+            ++ schedule;
+        }
+        return schedule;
+    }
+
+    static class SegmentTree {
+        class Segment {
+            int begin, end;
+            int count;
+            public Segment(int b, int e, int c) {
+                begin = b;
+                end = e;
+                count = c;
+            }
+        }
+        Segment[] segments;
+        public SegmentTree(int capacity) {
+            segments = new Segment[capacity << 2];
+            init(0, 0, capacity-1);
+        }
+        private void init(int root, int begin, int end) {
+            segments[root] = new Segment(begin, end, 1);
+            if(begin < end) {
+                int mid = (begin + end) / 2;
+                init(root * 2 + 1, begin, mid);
+                init(root * 2 + 2, mid+1, end);
+                segments[root].count = segments[root * 2 + 1].count + segments[root * 2 + 2].count;
+            }
+        }
+        private int count(int begin, int end) {
+            return count(0, begin, end);
+        }
+        private int count(int root, int begin, int end) {
+            if(begin <= segments[root].begin && end >= segments[root].end) {
+                return segments[root].count;
+            }
+            if(begin > segments[root].end || end < segments[root].begin) {
+                return 0;
+            }
+            return count(root * 2 + 1, begin, end) + count(root * 2 + 2, begin, end);
+        }
+//        public void increment(int index) {
+//            increment(0, index);
+//        }
+//        private void increment(int root, int index) {
+//            if(segments[root].begin <= index && segments[root].end > index) {
+//                ++ segments[root].count;
+//                if(segments[root].begin + 1 != segments[root].end) {
+//                    increment(root * 2 + 1, index);
+//                    increment(root * 2 + 2, index);
+//                }
+//            }
+//        }
+        public void erase(int begin, int end) {
+            erase(0, begin-1, end-1);
+        }
+        private void erase(int root, int begin, int end) {
+            if(segments[root].end < begin || segments[root].begin > end) {
+                return; // not in range
+            }
+            if(segments[root].count == 0) {
+                return; // no more to erase
+            }
+            if(segments[root].begin == segments[root].end) {
+                segments[root].count = 0;
+            }
+            else {
+                erase(root * 2 + 1, begin, end);
+                erase(root * 2 + 2, begin, end);
+                segments[root].count = segments[root * 2 + 1].count + segments[root * 2 + 2].count;
+            }
+        }
+        public int findStartPosition(int end, int duration) {
+            -- end;
+            if(count(0, end) < duration) {
+                return 0;
+            }
+            int left = 0, right = end + 1;
+            while (left < right) {
+                int mid = (left + right) / 2;
+                int empty = count(mid, end);
+                if(empty > duration) {
+                    left = mid + 1;
+                }
+                else if(empty < duration) {
+                    right = mid;
+                }
+                else {
+                    return mid + 1;
+                }
+            }
+            return 0;
+        }
+    }
+
+    public int scheduleCourse(int[][] courses) {
+        Arrays.sort(courses, (c1, c2) -> Integer.compare(c1[0], c2[0]));
+        SegmentTree tree = new SegmentTree(10000);
+        int schedule = 0;
+        for (int[] course : courses) {
+            int d = course[0];
+            int e = course[1];
+            int start = tree.findStartPosition(e, d);
+            if(start <= 0) {
+                continue;
+            }
+            tree.erase(start, e);
+            ++ schedule;
+        }
+        return schedule;
+    }
+
     public static void main(String[] args) {
         List<int[][]> tests = Arrays.asList(
                 new int[][][] {
+                        new int[][] {
+                                new int[] {1,2},
+                                new int[] {2,3}
+                        },
                         new int[][] {
                                 new int[] {100, 200},
                                 new int[] {200, 1300},
