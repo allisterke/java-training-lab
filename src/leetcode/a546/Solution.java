@@ -2,7 +2,66 @@ package leetcode.a546;
 import java.util.*;
 
 public class Solution {
+    Map<Integer, Integer> map;
+    public int removeBoxes1(int[] boxes) {
+        map = new HashMap<>();
+        return dfs(boxes, 0, boxes.length - 1, 0);
+    }
+
+    int dfs(int[] boxes, int i, int j, int k) {
+        if(i > j) {
+            return 0;
+        }
+        if(i == j) {
+            return (k+1) * (k+1);
+        }
+        if(boxes[i] == boxes[i+1]) {
+            return dfs(boxes, i+1, j, k+1);
+        }
+        if(boxes[i] == boxes[j]) {
+            return dfs(boxes, i, j-1, k+1);
+        }
+        int index = (i << 16) | (j << 8) | k;
+        if(!map.containsKey(index)) {
+            int best = 0;
+            for(int p = i; p < j; ++ p) {
+                best = Math.max(best, dfs(boxes, i, p, k) + dfs(boxes, p+1, j, 0));
+            }
+            map.put(index, best);
+        }
+        return map.get(index);
+    }
+
     public int removeBoxes(int[] boxes) {
+        if (boxes == null || boxes.length == 0) {
+            return 0;
+        }
+        int[][][] dp = new int[boxes.length][boxes.length][boxes.length];
+        for(int x = 0; x < boxes.length; ++ x) {
+            for(int i = 0; i + x < boxes.length; ++ i) {
+                int j = i + x;
+                for(int k = 0; x + k < boxes.length; ++ k) {
+                    if(x == 0) {
+                        dp[i][j][k] = (k+1)*(k+1);
+                    }
+                    else if(boxes[i] == boxes[i+1]) {
+                        dp[i][j][k] = Math.max(dp[i][j][k], dp[i+1][j][k+1]);
+                    }
+                    else if(boxes[i] == boxes[j]) {
+                        dp[i][j][k] = Math.max(dp[i][j][k], dp[i][j-1][k+1]);
+                    }
+                    else {
+                        for(int p = i; p < j; ++ p) {
+                            dp[i][j][k] = Math.max(dp[i][j][k], dp[i][p][k] + dp[p+1][j][0]);
+                        }
+                    }
+                }
+            }
+        }
+        return dp[0][boxes.length - 1][0];
+    }
+
+    public int removeBoxes0(int[] boxes) {
         if(boxes == null || boxes.length == 0) {
             return 0;
         }
