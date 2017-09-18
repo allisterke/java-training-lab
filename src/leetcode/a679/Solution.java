@@ -34,7 +34,7 @@ public class Solution {
             return new Fraction(n1, d1);
         }
 
-        Fraction subtract(Fraction b) {
+        Fraction minus(Fraction b) {
             long n1 = n * b.d - d * b.n;
             long d1 = d * b.d;
             return new Fraction(n1, d1);
@@ -46,7 +46,7 @@ public class Solution {
             return new Fraction(n1, d1);
         }
 
-        Fraction divideBy(Fraction b) {
+        Fraction divide(Fraction b) {
             long n1 = n * b.d;
             long d1 = d * b.n;
             return new Fraction(n1, d1);
@@ -97,19 +97,66 @@ public class Solution {
         return nums;
     }
 
+    static class Pair {
+        Fraction f;
+        String s;
+
+        static Pair makePair(Fraction f, String s) {
+            Pair p = new Pair();
+            p.f = f;
+            p.s = s;
+            return p;
+        }
+    }
+
+    Collection<Pair> permutate(int[] nums, int i, int j) {
+        Collection<Pair> p = new ArrayList<>();
+        if(i == j) {
+            p.add(Pair.makePair(new Fraction(nums[i], 1), String.valueOf(nums[i])));
+        }
+        else
+        for(int k = i; k < j; ++ k) {
+            Collection<Pair> left = permutate(nums, i, k);
+            Collection<Pair> right = permutate(nums, k+1, j);
+            for (Pair p1 : left) {
+                for (Pair p2: right) {
+                    p.add(Pair.makePair(p1.f.plus(p2.f), "(" + p1.s + "+" + p2.s + ")"));
+                    p.add(Pair.makePair(p1.f.minus(p2.f), "(" + p1.s + "-" + p2.s + ")"));
+                    p.add(Pair.makePair(p1.f.multiply(p2.f), "(" + p1.s + "*" + p2.s + ")"));
+                    if(!p2.f.equals(Fraction.ZERO)) {
+                        p.add(Pair.makePair(p1.f.divide(p2.f), "(" + p1.s + "/" + p2.s + ")"));
+                    }
+                }
+            }
+        }
+        return p;
+    }
+
+    boolean permutate(int[] nums) {
+        boolean exist = false;
+        Fraction f = new Fraction(24, 1);
+        for(Pair p : permutate(nums, 0, nums.length - 1)) {
+            if(p.f.equals(f)) {
+                System.out.println(p.s);
+                exist = true;
+            }
+        }
+        return exist;
+    }
+
     public boolean judgePoint24(int[] nums) {
+        boolean exist = false;
         Arrays.sort(nums);
         do {
-//            List<Fraction> cf = new ArrayList<>(getResults(nums, 0, 3));
-//            Collections.sort(cf);
-            Collection<Fraction> cf = getResults(nums, 0, 3);
+//            Collection<Fraction> cf = getResults(nums, 0, 3);
 
-            if (cf.contains(new Fraction(24, 1))) {
-                return true;
-            }
+//            if (cf.contains(new Fraction(24, 1))) {
+//                return true;
+//            }
+            exist |= permutate(nums);
             nums = nextPermutation(nums);
         } while (nums != null);
-        return false;
+        return exist;
     }
 
     public Collection<Fraction> getResults(int[] nums, int i, int j) {
@@ -124,10 +171,10 @@ public class Solution {
                 for(Fraction f1 : left) {
                     for (Fraction f2 : right) {
                         result.add(f1.plus(f2));
-                        result.add(f1.subtract(f2));
+                        result.add(f1.minus(f2));
                         result.add(f1.multiply(f2));
                         if(!f2.equals(Fraction.ZERO)) {
-                            result.add(f1.divideBy(f2));
+                            result.add(f1.divide(f2));
                         }
                     }
                 }
@@ -139,7 +186,8 @@ public class Solution {
     public static void main(String[] args) {
         List<int[]> tests = Arrays.asList(
                 new int[] {4, 1, 8, 7},
-                new int[] {1, 2, 1, 2}
+                new int[] {1, 2, 1, 2},
+                new int[] {1, 5, 5, 5}
         );
         List<Boolean> results = Arrays.asList(
                 true,
