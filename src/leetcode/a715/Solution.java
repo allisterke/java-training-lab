@@ -49,11 +49,12 @@ class RangeModule {
             if(entry.getKey() >= right) {
                 break;
             }
-            int value = entry.getValue(); // value of entry will change after it.remove;
+//            int value = entry.getValue(); // value of entry will change after it.remove;
             it.remove();
-//            if(entry.getValue() > right) {
-            if(value > right) {
-                map.put(right, value);
+            if(entry.getValue() > right) {
+//            if(value > right) {
+                map.put(right, entry.getValue());
+//                map.put(right, value);
                 break;
             }
         }
