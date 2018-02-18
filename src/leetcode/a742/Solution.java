@@ -1,7 +1,5 @@
 package leetcode.a742;
 
-import scala.xml.Null;
-
 import java.util.*;
 
 class TreeNode {

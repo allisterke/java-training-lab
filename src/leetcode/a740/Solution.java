@@ -1,7 +1,5 @@
 package leetcode.a740;
 
-import scala.Int;
-
 import java.util.*;
 
 public class Solution {

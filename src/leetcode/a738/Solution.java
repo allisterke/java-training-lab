@@ -1,7 +1,5 @@
 package leetcode.a738;
 
-import scala.math.Ordering;
-
 import java.util.Arrays;
 import java.util.List;
 
